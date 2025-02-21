@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Paiement extends Model
 {
-    protected $fillable = ['id_reservation', 'reference', 'date_paiement'];
+    protected $fillable = ['id_reservation', 'reference', 'date_paiement', 'validated_at'];
 
     protected $casts = [
-        'date_paiement' => 'date'
+        'date_paiement' => 'date',
+        'validated_at' => 'datetime' 
     ];
 
     public function reservation()
