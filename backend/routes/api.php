@@ -36,3 +36,4 @@ Route::delete('/reset-database', [DatabaseResetController::class, 'reset']);
 
 Route::get('/statistics/periodic-revenue', [StatistiqueController::class, 'getRevenueByPeriod']);
 Route::get('/statistics/total-revenue', [StatistiqueController::class, 'getTotalRevenue']);
+Route::get('/statistics/top-time-slots', [StatistiqueController::class, 'getTopTimeSlots']);

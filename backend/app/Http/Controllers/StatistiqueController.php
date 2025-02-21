@@ -48,4 +48,16 @@ class StatistiqueController extends Controller
             'total_revenue' => $paidRevenue + $unpaidRevenue,
         ]);
     }
+
+    public function getTopTimeSlots()
+    {
+        // top 3 slots
+        $limit = 3;
+        $topSlots = $this->statistiqueService->getTopTimeSlots($limit);
+
+        return response()->json([
+            'top_time_slots' => $topSlots,
+            'message' => 'Top 3 most popular reservation time slots'
+        ]);
+    }
 }

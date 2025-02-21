@@ -72,4 +72,23 @@ class StatistiqueService
 
         return $unpaidReservations + $unpaidOptionsRevenue;
     }
+
+    public function getTopTimeSlots($limit)
+    {
+        return Reservation::query()
+            ->select([
+                DB::raw('EXTRACT(HOUR FROM datetime_reservation) as hour'),
+                DB::raw('COUNT(*) as reservation_count')
+            ])
+            ->groupBy('hour')
+            ->orderBy('reservation_count', 'desc')
+            ->limit($limit)
+            ->get()
+            ->map(function ($slot) {
+                return [
+                    'time' => sprintf('%02d:00', $slot->hour),
+                    'count' => $slot->reservation_count
+                ];
+            });
+    }
 }
