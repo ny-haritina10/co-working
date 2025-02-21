@@ -1,0 +1,50 @@
+create the import for the reservation table : 
+
+here is the csv format:
+```
+ref,espace,client,date,heure_debut,duree,option
+r001,rubis,0349049881,11/01/2025,09:00,1,"opt1, opt3"
+r002,rubis,0381034567,14/01/2025,11:00,3,opt4
+r003,or,0349049881,23/03/2025,14:00,4,"opt2, opt1"
+```
+
+here is the tables:
+
+```
+CREATE TABLE reservations (
+    id SERIAL PRIMARY KEY,
+    id_client INT NOT NULL REFERENCES client(id) NOT NULL,    
+    id_espace INT NOT NULL REFERENCES espaces (id) NO NULL,
+    reference VARCHAR(255) NOT NULL,
+    datetime_reservation DATETIME NOT NULL,
+    hour_duration INT NOT NULL,
+    UNIQUE(reference)
+);
+
+CREATE TABLE reservation_options (
+    id SERIAL PRIMARY KEY,
+    id_reservation INT NOT NULL REFERENCES reservations(id),
+    id_option INT NOT NULL REFERENCES options(id)
+);
+```
+
+Note that you need to take into account a few things, first the `espcace` columns from the CSV referes to the 
+`label` column from `espace` table :
+
+```
+CREATE TABLE espaces (
+    id SERIAL PRIMARY KEY,
+    label VARCHAR(255) NOT NULL,
+    hour_price DECIMAL(10, 2) NOT NULL,
+    UNIQUE(label)
+);
+```
+
+You need to find the espace using the label which is UNIQUE.
+
+Then, the two columns from the CSV `date` and `heure_debut` is a single DATETIME columns in the table `reservation`. You need to combine them and insert as one column in the column `datetime_reservation`.
+
+Also, the column `option` from the CSV is stored in teh table :
+`reservation_options`.
+
+Handle all of those things correctly... 
