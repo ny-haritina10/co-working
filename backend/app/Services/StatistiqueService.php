@@ -30,4 +30,46 @@ class StatistiqueService
 
         return $spaceRevenue + $optionsRevenue;
     }
+
+    public function calculateTotalPaidRevenue()
+    {
+        // paid reservations (those with payments)
+        $paidReservations = Reservation::query()
+            ->join('paiements', 'reservations.id', '=', 'paiements.id_reservation')
+            ->join('espaces', 'reservations.id_espace', '=', 'espaces.id')
+            ->select(DB::raw('SUM(espaces.hour_price * reservations.hour_duration) as total'))
+            ->first()
+            ->total ?? 0;
+
+        // options revenue for paid reservations
+        $paidOptionsRevenue = Reservation::query()
+            ->join('paiements', 'reservations.id', '=', 'paiements.id_reservation')
+            ->join('reservation_options', 'reservations.id', '=', 'reservation_options.id_reservation')
+            ->join('options', 'reservation_options.id_option', '=', 'options.id')
+            ->sum('options.price');
+
+        return $paidReservations + $paidOptionsRevenue;
+    }
+
+    public function calculateTotalUnpaidRevenue()
+    {
+        // unpaid reservations (those without payments)
+        $unpaidReservations = Reservation::query()
+            ->leftJoin('paiements', 'reservations.id', '=', 'paiements.id_reservation')
+            ->join('espaces', 'reservations.id_espace', '=', 'espaces.id')
+            ->whereNull('paiements.id')
+            ->select(DB::raw('SUM(espaces.hour_price * reservations.hour_duration) as total'))
+            ->first()
+            ->total ?? 0;
+
+        // options revenue for unpaid reservations
+        $unpaidOptionsRevenue = Reservation::query()
+            ->leftJoin('paiements', 'reservations.id', '=', 'paiements.id_reservation')
+            ->join('reservation_options', 'reservations.id', '=', 'reservation_options.id_reservation')
+            ->join('options', 'reservation_options.id_option', '=', 'options.id')
+            ->whereNull('paiements.id')
+            ->sum('options.price');
+
+        return $unpaidReservations + $unpaidOptionsRevenue;
+    }
 }

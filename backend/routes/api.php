@@ -33,4 +33,6 @@ Route::post('/paiements/import', [PaiementController::class, 'importCsv']);
 Route::put('/paiements/{id}/validate', [PaiementController::class, 'validatePaiement']);
 
 Route::delete('/reset-database', [DatabaseResetController::class, 'reset']);
+
 Route::get('/statistics/periodic-revenue', [StatistiqueController::class, 'getRevenueByPeriod']);
+Route::get('/statistics/total-revenue', [StatistiqueController::class, 'getTotalRevenue']);

@@ -36,4 +36,16 @@ class StatistiqueController extends Controller
             'revenue' => $revenue
         ]);
     }   
+
+    public function getTotalRevenue()
+    {
+        $paidRevenue = $this->statistiqueService->calculateTotalPaidRevenue();
+        $unpaidRevenue = $this->statistiqueService->calculateTotalUnpaidRevenue();
+
+        return response()->json([
+            'paid_revenue' => $paidRevenue,
+            'unpaid_revenue' => $unpaidRevenue,
+            'total_revenue' => $paidRevenue + $unpaidRevenue,
+        ]);
+    }
 }
