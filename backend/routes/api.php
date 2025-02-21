@@ -8,6 +8,7 @@ use App\Http\Controllers\OptionController;
 use App\Http\Controllers\PaiementController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\DatabaseResetController;
+use App\Http\Controllers\StatistiqueController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,3 +33,4 @@ Route::post('/paiements/import', [PaiementController::class, 'importCsv']);
 Route::put('/paiements/{id}/validate', [PaiementController::class, 'validatePaiement']);
 
 Route::delete('/reset-database', [DatabaseResetController::class, 'reset']);
+Route::get('/statistics/periodic-revenue', [StatistiqueController::class, 'getRevenueByPeriod']);
