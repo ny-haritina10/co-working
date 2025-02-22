@@ -6,6 +6,7 @@ use App\Models\Paiement;
 use App\Models\Reservation;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Str;
 
 class PaiementService
 {
@@ -111,5 +112,46 @@ class PaiementService
             'paiement' => $paiement,
             'status' => 200
         ];
+    }
+
+    public function verifyReservationOwnership(int $reservationId, int $clientId): Reservation
+    {
+        $reservation = Reservation::with(['paiements'])->findOrFail($reservationId);
+
+        if ($reservation->id_client !== $clientId) {
+            throw new \Exception('This reservation does not belong to the authenticated client');
+        }
+
+        // Check if reservation is already paid
+        if ($reservation->paiements->whereNotNull('validated_at')->isNotEmpty()) {
+            throw new \Exception('This reservation is already paid');
+        }
+
+        // Check if there's a pending payment
+        if ($reservation->paiements->whereNull('validated_at')->isNotEmpty()) {
+            throw new \Exception('This reservation already has a pending payment');
+        }
+
+        return $reservation;
+    }
+
+    public function createPayment(Reservation $reservation): Paiement
+    {
+        // validated_at will be set by admin later
+        return Paiement::create([
+            'id_reservation' => $reservation->id,
+            'reference' => $this->generatePaymentReference(),
+            'date_paiement' => Carbon::now()->toDateString(),
+        ]);
+    }
+
+    private function generatePaymentReference(): string
+    {
+        do {
+            // Format: PAY-YYYYMMDD-XXXXX (e.g., PAY-20250122-A12B4)
+            $reference = 'PAY-' . Carbon::now()->format('Ymd') . '-' . strtoupper(Str::random(5));
+        } while (Paiement::where('reference', $reference)->exists());
+
+        return $reference;
     }
 }

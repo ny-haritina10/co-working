@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\CsvService;
 use App\Services\PaiementService;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class PaiementController extends Controller
 {
@@ -32,5 +33,33 @@ class PaiementController extends Controller
     {
         $validationResult = $this->paiementService->validatePaiement($id);
         return response()->json($validationResult, $validationResult['status']);
+    }
+
+    public function processPayment(Request $request): JsonResponse
+    {
+        $request->validate([
+            'id_client' => 'required|exists:client,id',
+            'id_reservation' => 'required|exists:reservations,id',
+        ]);
+
+        try {
+            // Check if the reservation belongs to the authenticated client
+            $reservation = $this->paiementService->verifyReservationOwnership(
+                $request->id_reservation,
+                $request->id_client
+            );
+
+            $payment = $this->paiementService->createPayment($reservation);
+
+            return response()->json([
+                'message' => 'Payment processed successfully',
+                'data' => $payment
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 400);
+        }
     }
 }
