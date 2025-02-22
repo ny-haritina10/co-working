@@ -51,4 +51,5 @@ Route::middleware('auth:sanctum')->prefix('front-office')->group(function () {
     Route::get('/client/me', [ClientAuthController::class, 'getAuthenticatedClient']);
 
     Route::get('/espaces/availability', [EspaceAvailabilityController::class, 'getDailyAvailability']);
+    Route::post('/reservations', [ReservationController::class, 'store']);
 });

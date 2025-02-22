@@ -13,13 +13,89 @@ use Illuminate\Support\Str;
 
 class ReservationService
 {
+    private const OPENING_HOUR = 8;
+    private const CLOSING_HOUR = 18;
+
+    public function createReservation(
+        int $clientId,
+        int $espaceId,
+        string $dateReservation,
+        int $hourBegin,
+        int $duration,
+        array $optionIds
+    ): Reservation {
+        $this->validateReservationTime($hourBegin, $duration);        
+        $dateTimeReservation = Carbon::parse($dateReservation)->setHour($hourBegin);
+        
+        $this->checkSpaceAvailability($espaceId, $dateTimeReservation, $duration);
+        $reference = $this->generateReference();
+
+        // transaction to ensure data consistency
+        return DB::transaction(function () use ($clientId, $espaceId, $dateTimeReservation, $duration, $optionIds, $reference) {
+            $reservation = Reservation::create([
+                'id_client' => $clientId,
+                'id_espace' => $espaceId,
+                'reference' => $reference,
+                'datetime_reservation' => $dateTimeReservation,
+                'hour_duration' => $duration
+            ]);
+
+            // attach options 
+            if (!empty($optionIds)) {
+                $reservation->options()->attach($optionIds);
+            }
+
+            // load relationships for response
+            return $reservation->load(['espace', 'options']);
+        });
+    }
+
+    private function validateReservationTime(int $hourBegin, int $duration): void
+    {
+        $endHour = $hourBegin + $duration;
+
+        if ($hourBegin < self::OPENING_HOUR || $endHour > self::CLOSING_HOUR) {
+            throw new \Exception(
+                sprintf('Reservation must be between %dh and %dh', self::OPENING_HOUR, self::CLOSING_HOUR)
+            );
+        }
+    }
+
+    private function checkSpaceAvailability(int $espaceId, Carbon $dateTimeReservation, int $duration): void
+    {
+        $endTime = $dateTimeReservation->copy()->addHours($duration);
+
+        // check for conflicting reservation
+        $conflictingReservation = Reservation::where('id_espace', $espaceId)
+            ->where(function ($query) use ($dateTimeReservation, $endTime) {
+                $query->where(function ($q) use ($dateTimeReservation, $endTime) {
+                    $q->where('datetime_reservation', '<', $endTime)
+                        ->whereRaw('datetime_reservation + (hour_duration || \' hours\')::interval > ?', [$dateTimeReservation]);
+                });
+            })
+            ->exists();
+
+        if ($conflictingReservation) {
+            throw new \Exception('This space is not available for the selected time period');
+        }
+    }
+
+    private function generateReference(): string
+    {
+        do {
+            // Format: RES-YYYYMMDD-XXXXX (e.g., RES-20250122-A12B4)
+            $reference = 'RES-' . Carbon::now()->format('Ymd') . '-' . strtoupper(Str::random(5));
+        } while (Reservation::where('reference', $reference)->exists());
+
+        return $reference;
+    }
+
     public function importCsv($file)
     {
         DB::beginTransaction();
         
         try {
             $handle = fopen($file->getPathname(), "r");
-            
             $header = fgetcsv($handle);
             
             $imported = 0;
