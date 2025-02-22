@@ -2,8 +2,10 @@
 
 namespace Database\Seeders;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use App\Models\Client;
+use App\Models\Admin;
 
 class DatabaseSeeder extends Seeder
 {
@@ -12,11 +14,21 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // \App\Models\User::factory(10)->create();
+        // CLIENTS 
+        $clients = [
+            ['name_client' => 'Client 1', 'numero_client' => '0349049881'],
+            ['name_client' => 'Client 2', 'numero_client' => '0381034567'],
+        ];
 
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        foreach ($clients as $client) {
+            Client::create($client);
+        }
+
+        // ADMIN
+        Admin::create([
+            'name' => 'Super Admin',
+            'email' => 'admin@gmail.com',
+            'password' => Hash::make('admin')
+        ]);
     }
 }
