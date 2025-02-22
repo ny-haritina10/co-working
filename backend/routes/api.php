@@ -9,6 +9,8 @@ use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\DatabaseResetController;
 use App\Http\Controllers\StatistiqueController;
 use App\Http\Controllers\AdminAuthController;
+use App\Http\Controllers\ClientAuthController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -21,8 +23,15 @@ use App\Http\Controllers\AdminAuthController;
 |
 */
 
-// admin login
+// auth
 Route::post('/admin/login', [AdminAuthController::class, 'login']);
+Route::post('/client/auth', [ClientAuthController::class, 'loginOrSignUp']);
+
+// client 
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/client/logout', [ClientAuthController::class, 'logout']);
+    Route::get('/client/me', [ClientAuthController::class, 'getAuthenticatedClient']);
+});
 
 // guarded back-office routes
 Route::middleware(['auth:sanctum'])->prefix('back-office')->group(function () {
