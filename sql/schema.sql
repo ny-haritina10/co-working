@@ -1,3 +1,14 @@
+CREATE TABLE admins (
+	id bigserial NOT NULL,
+	"name" varchar(255) NOT NULL,
+	email varchar(255) NOT NULL,
+	"password" varchar(255) NOT NULL,
+	created_at timestamp(0) NULL,
+	updated_at timestamp(0) NULL,
+	CONSTRAINT admins_email_unique UNIQUE (email),
+	CONSTRAINT admins_pkey PRIMARY KEY (id)
+);
+
 CREATE TABLE client (
 	id bigserial NOT NULL,
 	name_client varchar(255) NOT NULL,
@@ -51,6 +62,7 @@ CREATE TABLE paiements (
 	date_paiement date NOT NULL,
 	created_at timestamp(0) NULL,
 	updated_at timestamp(0) NULL,
+	validated_at timestamptz(0) NULL,
 	CONSTRAINT paiements_pkey PRIMARY KEY (id),
 	CONSTRAINT paiements_id_reservation_foreign FOREIGN KEY (id_reservation) REFERENCES reservations(id) ON DELETE CASCADE
 );

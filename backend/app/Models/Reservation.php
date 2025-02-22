@@ -32,6 +32,11 @@ class Reservation extends Model
     {
         return $this->belongsToMany(Option::class, 'reservation_options', 'id_reservation', 'id_option');
     }
+
+    public function paiements()
+    {
+        return $this->hasMany(Paiement::class, 'id_reservation');
+    }
 }
 
 class ReservationOption extends Model
