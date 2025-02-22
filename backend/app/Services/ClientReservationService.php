@@ -53,13 +53,26 @@ class ClientReservationService
 
     private function getPaymentStatus($reservation): string
     {
-        if ($reservation->paiements->isEmpty()) {
-            return 'unpaid';
+        $reservationEnd = $reservation->datetime_reservation->copy()
+            ->addHours($reservation->hour_duration);
+
+        if ($reservationEnd->isPast()) {
+            return 'Fait';
         }
 
-        return $reservation->paiements->whereNotNull('validated_at')->isNotEmpty()
-            ? 'paid'
-            : 'pending';
+        if ($reservation->paiements->isEmpty()) {
+            return 'A payer';
+        }
+
+        $hasValidatedPayment = $reservation->paiements
+            ->whereNotNull('validated_at')
+            ->isNotEmpty();
+
+        if ($hasValidatedPayment) {
+            return 'Payé';
+        }
+
+        return 'En attente';
     }
 
     private function calculateTotalPrice($reservation): float
