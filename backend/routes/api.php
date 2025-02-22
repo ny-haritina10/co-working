@@ -11,6 +11,8 @@ use App\Http\Controllers\StatistiqueController;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\ClientAuthController;
 use App\Http\Controllers\EspaceAvailabilityController;
+use App\Http\Controllers\ClientReservationController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -52,4 +54,5 @@ Route::middleware('auth:sanctum')->prefix('front-office')->group(function () {
 
     Route::get('/espaces/availability', [EspaceAvailabilityController::class, 'getDailyAvailability']);
     Route::post('/reservations', [ReservationController::class, 'store']);
+    Route::get('/reservations', [ClientReservationController::class, 'index']);
 });
