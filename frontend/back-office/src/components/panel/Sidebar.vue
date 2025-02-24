@@ -1,4 +1,3 @@
-<!-- src/components/Sidebar.vue -->
 <template>
   <div class="sidebar d-flex flex-column flex-shrink-0 p-3">
     <a href="#" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
@@ -13,17 +12,42 @@
           Dashboard
         </router-link>
       </li>
-      <li>
-        <a href="#" class="nav-link text-white">
-          <i class="bi bi-person-fill me-2"></i>
-          Users
-        </a>
-      </li>
-      <li>
-        <a href="#" class="nav-link text-white">
-          <i class="bi bi-gear-fill me-2"></i>
-          Settings
-        </a>
+      <li class="nav-item">
+        <div class="dropdown">
+          <a
+            class="nav-link text-white dropdown-toggle"
+            href="#"
+            id="importDropdown"
+            role="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            <i class="bi bi-file-earmark-arrow-up-fill me-2"></i>
+            Import CSV
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="importDropdown">
+            <li>
+              <router-link to="/import-espaces" class="dropdown-item text-dark">
+                <i class="bi bi-building me-2"></i>Espaces
+              </router-link>
+            </li>
+            <li>
+              <router-link to="/import-reservations" class="dropdown-item text-dark">
+                <i class="bi bi-calendar-check me-2"></i>Réservations
+              </router-link>
+            </li>
+            <li>
+              <router-link to="/import-options" class="dropdown-item text-dark">
+                <i class="bi bi-gear me-2"></i>Options
+              </router-link>
+            </li>
+            <li>
+              <router-link to="/import-paiements" class="dropdown-item text-dark">
+                <i class="bi bi-cash me-2"></i>Paiements
+              </router-link>
+            </li>
+          </ul>
+        </div>
       </li>
     </ul>
     <hr>
@@ -73,5 +97,20 @@ hr {
 
 .fs-4 {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.dropdown-menu {
+  background-color: #fff;
+  border: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-item {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #2c3e50;
+}
+
+.dropdown-item:hover {
+  background-color: #f5f7fa;
 }
 </style>

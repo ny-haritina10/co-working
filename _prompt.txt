@@ -1,24 +1,30 @@
-I have a VueJS with TS created with Vite.
-Create a VueJS Component for this REST API method who handle the login functionality . 
-Here is the API endpoint : 
-POST  http://127.0.0.1:8000/api/admin/login
+add a link with this label on the sidebar : `Import CSV` . 
+In this link add 4 sublink (link déroulante): esapce, reservation, options, paiements ... Then here are the API endpoint to make a CSV import : 
 
-Here is the JSON response in the 2 methods:
+POST http://127.0.0.1:8000/api/back-office/paiements/import  
+POST http://127.0.0.1:8000/api/back-office/espaces/import  
+POST http://127.0.0.1:8000/api/back-office/options/import  
+POST http://127.0.0.1:8000/api/back-office/reservations/import  
 
-When it's a success:
-```
-{
-    "token": "6|UUZuO5HuxY3PYgQZosPxbWY72exB4RI9aOHA7V08985823ff"
-}
-```
+those API endpoint import CSV file into the database
 
-When it's invalid:
-```
-{
-    "message": "Invalid credentials"
-}
-```
+Create 4 import component with a form and a file input, always use Bootstrap and icons for the styling (use the same color and font) and for the 4 sublink, add 4 new routes in the router 
 
-I want you to style the Component with Bootstrap. Use icons, modern and elegant Font to enhance the style.
-When it's a success store the admin token in localStorage.
-Use the best practice to consume a REST API with VueJS project.
+Display correclty the error message if it exists and the success message when its a success. Here is the JSON structure returned when there is an error (its the same for the four imports) :
+
+```
+'success' => false,
+'message' => 'Please upload a valid CSV file',
+'errors' => $validator->errors(),
+'status' => 400
+``` 
+
+Here is the returned JSON when its a success (its the same for the four imports): 
+```
+return [
+    'success' => true,
+    'message' => "{$imported} records imported successfully",
+    'errors' => $errors,
+    'status' => 200
+];
+```
