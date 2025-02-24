@@ -1,50 +1,24 @@
-create the import for the reservation table : 
+I have a VueJS with TS created with Vite.
+Create a VueJS Component for this REST API method who handle the login functionality . 
+Here is the API endpoint : 
+POST  http://127.0.0.1:8000/api/admin/login
 
-here is the csv format:
+Here is the JSON response in the 2 methods:
+
+When it's a success:
 ```
-ref,espace,client,date,heure_debut,duree,option
-r001,rubis,0349049881,11/01/2025,09:00,1,"opt1, opt3"
-r002,rubis,0381034567,14/01/2025,11:00,3,opt4
-r003,or,0349049881,23/03/2025,14:00,4,"opt2, opt1"
-```
-
-here is the tables:
-
-```
-CREATE TABLE reservations (
-    id SERIAL PRIMARY KEY,
-    id_client INT NOT NULL REFERENCES client(id) NOT NULL,    
-    id_espace INT NOT NULL REFERENCES espaces (id) NO NULL,
-    reference VARCHAR(255) NOT NULL,
-    datetime_reservation DATETIME NOT NULL,
-    hour_duration INT NOT NULL,
-    UNIQUE(reference)
-);
-
-CREATE TABLE reservation_options (
-    id SERIAL PRIMARY KEY,
-    id_reservation INT NOT NULL REFERENCES reservations(id),
-    id_option INT NOT NULL REFERENCES options(id)
-);
+{
+    "token": "6|UUZuO5HuxY3PYgQZosPxbWY72exB4RI9aOHA7V08985823ff"
+}
 ```
 
-Note that you need to take into account a few things, first the `espcace` columns from the CSV referes to the 
-`label` column from `espace` table :
-
+When it's invalid:
 ```
-CREATE TABLE espaces (
-    id SERIAL PRIMARY KEY,
-    label VARCHAR(255) NOT NULL,
-    hour_price DECIMAL(10, 2) NOT NULL,
-    UNIQUE(label)
-);
+{
+    "message": "Invalid credentials"
+}
 ```
 
-You need to find the espace using the label which is UNIQUE.
-
-Then, the two columns from the CSV `date` and `heure_debut` is a single DATETIME columns in the table `reservation`. You need to combine them and insert as one column in the column `datetime_reservation`.
-
-Also, the column `option` from the CSV is stored in teh table :
-`reservation_options`.
-
-Handle all of those things correctly... 
+I want you to style the Component with Bootstrap. Use icons, modern and elegant Font to enhance the style.
+When it's a success store the admin token in localStorage.
+Use the best practice to consume a REST API with VueJS project.
