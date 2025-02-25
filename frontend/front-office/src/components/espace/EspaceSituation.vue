@@ -68,7 +68,7 @@
               <tr>
                 <th class="workspace-header">Workspace</th>
                 <th v-for="hour in hours" :key="hour">{{ hour }}h</th>
-                <th class="actions-header"></th>
+                <th class="actions-header">Action</th>
               </tr>
             </thead>
             <tbody>
