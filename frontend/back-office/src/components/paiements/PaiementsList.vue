@@ -50,6 +50,7 @@
                           :disabled="paiement.validated_at || isValidating[paiement.id]"
                         >
                           <span v-if="isValidating[paiement.id]" class="spinner-border spinner-border-sm me-2" role="status"></span>
+                          <i class="bi bi-check"></i>
                           {{ isValidating[paiement.id] ? 'Validation...' : 'Validé' }}
                         </button>
                         <button
