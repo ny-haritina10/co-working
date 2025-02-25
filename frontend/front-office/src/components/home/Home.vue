@@ -52,22 +52,14 @@
                 <i class="bi bi-calendar-week me-2"></i>
                 Bookings
               </a>
-              <a href="#" class="sidebar-menu-item">
+              <router-link to="/espace" class="sidebar-menu-item">
                 <i class="bi bi-building me-2"></i>
                 Spaces
-              </a>
-              <a href="#" class="sidebar-menu-item">
-                <i class="bi bi-people me-2"></i>
-                Community
-              </a>
-              <a href="#" class="sidebar-menu-item">
-                <i class="bi bi-gear me-2"></i>
-                Settings
-              </a>
+              </router-link>
             </div>
           </div>
         </div>
-        
+                
         <!-- Main Dashboard -->
         <div class="col-lg-9">
           <div class="dashboard-header">
