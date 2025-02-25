@@ -1,30 +1,177 @@
-add a link with this label on the sidebar : `Import CSV` . 
-In this link add 4 sublink (link déroulante): esapce, reservation, options, paiements ... Then here are the API endpoint to make a CSV import : 
+Thanks it works, i want you to enhance the style of the Login component, i dont like the font , it's a front-office web app for a co-working application ... 
+you can use bootstrap and icons to enhance the style . 
+Surprise me by creating a style who aligned with the theme ... 
 
-POST http://127.0.0.1:8000/api/back-office/paiements/import  
-POST http://127.0.0.1:8000/api/back-office/espaces/import  
-POST http://127.0.0.1:8000/api/back-office/options/import  
-POST http://127.0.0.1:8000/api/back-office/reservations/import  
 
-those API endpoint import CSV file into the database
+Home.vue : 
+<template>
+  <div>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Front Office</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <span class="nav-link">Welcome, {{ client?.name_client }}</span>
+            </li>
+            <li class="nav-item">
+              <button class="btn btn-outline-light" @click="logout">
+                <i class="bi bi-box-arrow-right"></i>
+                Logout
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    
+    <div class="container mt-5">
+      <div class="card shadow-sm p-4">
+        <h2 class="mb-4">Dashboard</h2>
+        <div class="row">
+          <div class="col-md-6">
+            <p><i class="bi bi-person-circle me-2"></i>Name: {{ client?.name_client }}</p>
+            <p><i class="bi bi-telephone me-2"></i>Phone: {{ client?.numero_client }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
 
-Create 4 import component with a form and a file input, always use Bootstrap and icons for the styling (use the same color and font) and for the 4 sublink, add 4 new routes in the router 
+<script>
+export default {
+  name: 'Home',
+  data() {
+    return {
+      client: null
+    }
+  },
+  created() {
+    const clientData = localStorage.getItem('client')
+    if (clientData) {
+      this.client = JSON.parse(clientData)
+    } else {
+      this.$router.push('/')
+    }
+  },
+  methods: {
+    logout() {
+      localStorage.removeItem('token')
+      localStorage.removeItem('client')
+      this.$router.push('/')
+    }
+  }
+}
+</script>
 
-Display correclty the error message if it exists and the success message when its a success. Here is the JSON structure returned when there is an error (its the same for the four imports) :
+<style scoped>
+.navbar {
+  font-family: 'Poppins', sans-serif;
+}
+.card {
+  border: none;
+  border-radius: 15px;
+}
+h2 {
+  font-family: 'Poppins', sans-serif;
+  color: #333;
+}
+</style>  
 
-```
-'success' => false,
-'message' => 'Please upload a valid CSV file',
-'errors' => $validator->errors(),
-'status' => 400
-``` 
 
-Here is the returned JSON when its a success (its the same for the four imports): 
-```
-return [
-    'success' => true,
-    'message' => "{$imported} records imported successfully",
-    'errors' => $errors,
-    'status' => 200
-];
-```
+
+Login.vue : 
+
+<template>
+  <div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="card shadow-lg p-4" style="max-width: 400px; width: 100%;">
+      <h2 class="text-center mb-4">Welcome Back</h2>
+      <form @submit.prevent="handleLogin">
+        <div class="mb-3">
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="bi bi-person-fill"></i>
+            </span>
+            <input
+              v-model="form.numero_client"
+              type="text"
+              class="form-control"
+              placeholder="Phone Number"
+              required
+            >
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2">
+          <i class="bi bi-box-arrow-in-right"></i>
+          Login
+        </button>
+      </form>
+      <div v-if="error" class="alert alert-danger mt-3">
+        {{ error }}
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import axios from 'axios'
+
+export default {
+  name: 'Login',
+  data() {
+    return {
+      form: {
+        numero_client: '',
+        password: ''
+      },
+      error: '',
+      apiClient: null
+    }
+  },
+  created() {
+    this.apiClient = axios.create({
+      baseURL: 'http://127.0.0.1:8000/api',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    })
+  },
+  methods: {
+    async handleLogin() {
+      try {
+        const response = await this.apiClient.post('/client/auth', this.form)
+        localStorage.setItem('token', response.data.token)
+        localStorage.setItem('client', JSON.stringify(response.data.client))
+        this.$router.push('/home')
+      } catch (error) {
+        this.error = error.response?.data?.message || 'Login failed'
+      }
+    }
+  }
+}
+</script>
+
+<style scoped>
+.card {
+  border: none;
+  border-radius: 15px;
+}
+h2 {
+  font-family: 'Poppins', sans-serif;
+  color: #333;
+}
+.btn-primary {
+  background-color: #007bff;
+  border: none;
+  padding: 10px;
+  font-family: 'Poppins', sans-serif;
+}
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+</style>

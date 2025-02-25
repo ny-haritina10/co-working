@@ -1,4 +1,3 @@
-// src/router/index.js
 import { createRouter, createWebHistory } from 'vue-router'
 import AdminLogin from '../components/auth/AdminLogin.vue'
 import Dashboard from '../components/panel/Dashboard.vue'
