@@ -116,6 +116,7 @@ export default {
           this.$refs.csvFile.value = '' // Reset file input
         }
       } catch (error) {
+        console.log('error', error)
         if (error.response) {
           this.errorMessage = error.response.data.message || 'An error occurred during import'
           this.errors = error.response.data.errors ? Object.values(error.response.data.errors).flat() : []

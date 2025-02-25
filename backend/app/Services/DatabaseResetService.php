@@ -18,8 +18,8 @@ class DatabaseResetService
             foreach ($tables as $table) {
                 $tableName = $table->tablename;
                 
-                // Exclude migrations table
-                if ($tableName !== 'migrations') { 
+                // Exclude some tables
+                if ($tableName !== 'migrations' && $tableName !== 'admins' && $tableName !== 'client') {
                     DB::statement("TRUNCATE TABLE \"$tableName\" RESTART IDENTITY CASCADE;");
                 }
             }
