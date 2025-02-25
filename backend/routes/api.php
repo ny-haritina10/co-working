@@ -36,6 +36,7 @@ Route::middleware(['auth:sanctum'])->prefix('back-office')->group(function () {
     Route::post('/reservations/import', [ReservationController::class, 'importCsv']);
     Route::post('/paiements/import', [PaiementController::class, 'importCsv']);
     
+    Route::get('/paiements', [PaiementController::class, 'getAllPaiements']);
     Route::put('/paiements/{id}/validate', [PaiementController::class, 'validatePaiement']);
 
     Route::delete('/reset-database', [DatabaseResetController::class, 'reset']);

@@ -4,9 +4,11 @@ namespace App\Services;
 
 use App\Models\Paiement;
 use App\Models\Reservation;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Str;
+
 
 class PaiementService
 {
@@ -153,5 +155,10 @@ class PaiementService
         } while (Paiement::where('reference', $reference)->exists());
 
         return $reference;
+    }
+
+    public function getAllPaiements(): Collection
+    {
+        return Paiement::with('reservation')->get();
     }
 }

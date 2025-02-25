@@ -18,6 +18,16 @@ class PaiementController extends Controller
         $this->paiementService = $paiementService;
     }
 
+    public function getAllPaiements(): JsonResponse
+    {
+        $paiements = $this->paiementService->getAllPaiements();
+        
+        return response()->json([
+            'success' => true,
+            'data' => $paiements
+        ], 200);
+    }
+
     public function importCsv(Request $request)
     {
         $validationResult = $this->csvService->validateCsv($request);

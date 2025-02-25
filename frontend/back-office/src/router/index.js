@@ -7,6 +7,7 @@ import ImportReservations from '../components/import/ImportReservations.vue'
 import ImportOptions from '../components/import/ImportOptions.vue'
 import ImportPaiements from '../components/import/ImportPaiements.vue'
 import NotFound from '../components/errors/NotFound.vue'
+import PaiementsList from '../components/paiements/PaiementsList.vue'
 
 const routes = [
   {
@@ -19,6 +20,12 @@ const routes = [
     path: '/dashboard',
     name: 'Dashboard',
     component: Dashboard,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/paiements',
+    name: 'PaiementsList',
+    component: PaiementsList,
     meta: { requiresAuth: true }
   },
   {

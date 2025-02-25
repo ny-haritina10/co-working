@@ -2,7 +2,7 @@
   <div class="sidebar d-flex flex-column flex-shrink-0 p-3">
     <a href="#" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
       <i class="bi bi-bootstrap-fill me-2"></i>
-      <span class="fs-4">Admin Panel</span>
+      <span class="fs-4">Back-Office</span>
     </a>
     <hr>
     <ul class="nav nav-pills flex-column mb-auto">
@@ -10,6 +10,12 @@
         <router-link to="/dashboard" class="nav-link text-white" active-class="active">
           <i class="bi bi-house-door-fill me-2"></i>
           Dashboard
+        </router-link>
+      </li>
+      <li class="nav-item">
+        <router-link to="/paiements" class="nav-link text-white" active-class="active">
+          <i class="bi bi-cash-stack me-2"></i>
+          Liste des Paiements
         </router-link>
       </li>
       <li class="nav-item">
