@@ -203,7 +203,7 @@ class ReservationService
     public function getClientReservations(int $clientId): Collection
     {
         $reservations = Reservation::where('id_client', $clientId)
-            ->with(['client', 'options'])
+            ->with(['client', 'options', 'paiements']) 
             ->get();
 
         if ($reservations->isEmpty()) {
@@ -218,8 +218,8 @@ class ReservationService
                 'reservation_date' => $startTime->toDateString(),
                 'hour_begin' => $startTime->format('H:i'),
                 'hour_end' => $endTime->format('H:i'),
-                'name_client' => $reservation->client->name_client ?? 'Unknown',
-                'options' => $reservation->options->pluck('label')->toArray(),
+                'name_client' => $reservation->client->name_client ?? 'Unknown', 
+                'options' => $reservation->options->pluck('label')->toArray(), 
                 'duration' => $reservation->hour_duration,
                 'reservation_amount' => $this->calculateReservationAmount($reservation),
                 'status' => $this->determineReservationStatus($reservation)
@@ -229,7 +229,7 @@ class ReservationService
 
     private function calculateReservationAmount(Reservation $reservation): float
     {
-        $baseAmount = $reservation->espace->price_per_hour * $reservation->hour_duration;
+        $baseAmount = $reservation->espace->hour_price * $reservation->hour_duration;
         $optionsAmount = $reservation->options->sum('price');
         
         return round($baseAmount + $optionsAmount, 2);
@@ -237,15 +237,22 @@ class ReservationService
 
     private function determineReservationStatus(Reservation $reservation): string
     {
-        $now = now();
-        
-        if ($reservation->datetime_reservation->isFuture()) {
-            return 'upcoming';
-        } elseif ($reservation->datetime_reservation->lte($now) && 
-                 $reservation->datetime_reservation->addHours($reservation->hour_duration)->gte($now)) {
-            return 'active';
+        $reservationEnd = $reservation->datetime_reservation->copy()->addHours($reservation->hour_duration);
+
+        if ($reservationEnd->isPast()) {
+            return 'Fait';
         }
-        
-        return 'completed';
+
+        if ($reservation->paiements->isEmpty()) {
+            return 'A payer'; 
+        }
+
+        $latestPayment = $reservation->paiements->sortByDesc('created_at')->first();
+
+        if ($latestPayment->validated_at === null) {
+            return 'En attente'; 
+        }
+
+        return 'Payé'; 
     }
 }
