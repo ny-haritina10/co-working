@@ -56,6 +56,7 @@
                       <th>Options</th>
                       <th>Amount</th>
                       <th>Status</th>
+                      <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -88,11 +89,46 @@
                           {{ reservation.status }}
                         </span>
                       </td>
+                      <td>
+                        <button 
+                          v-if="showPayButton(reservation)"
+                          @click="processPayment(reservation)" 
+                          :disabled="isProcessingPayment(reservation.id_reservation)"
+                          class="btn btn-sm btn-success">
+                          <span v-if="isProcessingPayment(reservation.id_reservation)" class="spinner-border spinner-border-sm me-1" role="status"></span>
+                          <i v-else class="bi bi-credit-card me-1"></i>
+                          Payé
+                        </button>
+                      </td>
                     </tr>
                   </tbody>
                 </table>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Payment Success Modal -->
+    <div class="modal fade" id="paymentSuccessModal" tabindex="-1" aria-labelledby="paymentSuccessModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-success text-white">
+            <h5 class="modal-title" id="paymentSuccessModalLabel">
+              <i class="bi bi-check-circle-fill me-2"></i>Payment Successful
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>Your payment has been processed successfully!</p>
+            <div v-if="paymentData">
+              <p class="mb-1"><strong>Reference:</strong> {{ paymentData.reference }}</p>
+              <p class="mb-1"><strong>Date:</strong> {{ formatDate(paymentData.date_paiement) }}</p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
           </div>
         </div>
       </div>
@@ -120,6 +156,8 @@ export default {
     const loading = ref(true);
     const error = ref('');
     const client = ref(null);
+    const paymentData = ref(null);
+    const processingPayments = ref([]);
     const currentDate = ref(new Date().toLocaleDateString('en-US', {
       weekday: 'long',
       year: 'numeric',
@@ -203,6 +241,8 @@ export default {
           return 'bg-warning text-dark';
         case 'confirmé':
           return 'bg-info text-dark';
+        case 'payé':
+          return 'bg-success';
         default:
           return 'bg-secondary';
       }
@@ -218,9 +258,72 @@ export default {
           return 'bi-hourglass-split me-1';
         case 'confirmé':
           return 'bi-check2-all me-1';
+        case 'payé':
+          return 'bi-credit-card-fill me-1';
         default:
           return 'bi-circle-fill me-1';
       }
+    };
+    
+    const showPayButton = (reservation) => {
+      console.log('RESA: ', reservation)
+      return reservation.status.toLowerCase() === 'confirmé' 
+          || reservation.status.toLowerCase() === 'a payer'
+          || reservation.status.toLowerCase() === 'fait';
+    };
+    
+    const isProcessingPayment = (reservationId) => {
+      return processingPayments.value.includes(reservationId);
+    };
+    
+    const processPayment = async (reservation) => {
+      console.log('process resa', reservation);
+      
+      const userData = getClient();
+      
+      if (!userData || !userData.id) {
+        error.value = 'User data not found. Please login again.';
+        return;
+      }
+      
+      // Add to processing state
+      processingPayments.value.push(reservation.id_reservation);
+      
+      try {
+        const response = await apiClient.post(
+          `/front-office/reservations/${reservation.id_reservation}/pay`, 
+          {
+            id_client: userData.id,
+            id_reservation: reservation.id_reservation
+          }
+        );
+        
+        if (response.data && response.data.data) {
+          // Update payment data for modal
+          paymentData.value = response.data.data;
+          
+          // Update reservation status in the list
+          const index = reservations.value.findIndex(r => r.id === reservation.id_reservation);
+          if (index !== -1) {
+            reservations.value[index].status = 'Payé';
+          }
+          
+          // Show success modal
+          showPaymentSuccessModal();
+        }
+      } catch (err) {
+        console.error('Payment error:', err);
+        alert(err.response?.data?.message || 'Payment processing failed. Please try again.');
+      } finally {
+        // Remove from processing state
+        processingPayments.value = processingPayments.value.filter(id => id !== reservation.id_reservation);
+      }
+    };
+    
+    const showPaymentSuccessModal = () => {
+      // Use Bootstrap modal
+      const modal = new bootstrap.Modal(document.getElementById('paymentSuccessModal'));
+      modal.show();
     };
     
     const logout = () => {
@@ -232,6 +335,9 @@ export default {
     onMounted(() => {
       fetchReservations();
       getClient();
+      
+      // Import Bootstrap JavaScript
+      import('bootstrap');
     });
 
     return {
@@ -240,10 +346,14 @@ export default {
       error,
       client,
       currentDate,
+      paymentData,
       formatDate,
       formatCurrency,
       getStatusBadgeClass,
       getStatusIconClass,
+      showPayButton,
+      processPayment,
+      isProcessingPayment,
       logout
     };
   }

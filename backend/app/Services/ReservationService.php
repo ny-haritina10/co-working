@@ -215,6 +215,7 @@ class ReservationService
             $endTime = $startTime->copy()->addHours($reservation->hour_duration);
 
             return [
+                'id_reservation' => $reservation->id,
                 'reservation_date' => $startTime->toDateString(),
                 'hour_begin' => $startTime->format('H:i'),
                 'hour_end' => $endTime->format('H:i'),

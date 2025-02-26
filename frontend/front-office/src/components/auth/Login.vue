@@ -72,6 +72,7 @@ export default {
     async handleLogin() {
       try {
         const response = await this.apiClient.post('/client/auth', this.form)
+        
         localStorage.setItem('token', response.data.token)
         localStorage.setItem('client', JSON.stringify(response.data.client))
         this.$router.push('/home')
