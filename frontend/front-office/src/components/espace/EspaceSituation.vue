@@ -86,7 +86,7 @@
                 </td>
                 <td class="action-cell">
                   <button class="btn reserve-btn" @click="handleReserve(space)">
-                    Reserve
+                    Reservation
                   </button>
                 </td>
               </tr>
@@ -420,8 +420,8 @@ export default {
         return 0;
       }
 
-      const hourPrice = parseFloat(this.selectedSpace.hour_price) || 0; // Fallback to 0 if NaN
-      const duration = parseInt(this.reservationForm.duration, 10) || 0; // Convert string to integer, fallback to 0
+      const hourPrice = parseFloat(this.selectedSpace.hour_price) || 0; 
+      const duration = parseInt(this.reservationForm.duration, 10) || 0; 
 
       return hourPrice * duration;
     },

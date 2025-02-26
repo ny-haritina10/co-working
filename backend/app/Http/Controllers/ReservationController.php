@@ -62,4 +62,24 @@ class ReservationController extends Controller
             ], 400);
         }
     }
+
+    public function cancel(Request $request): JsonResponse
+    {
+        $request->validate([
+            'reference' => 'required|string|exists:reservations,reference'
+        ]);
+
+        try {
+            $this->reservationService->cancelReservation($request->reference);
+
+            return response()->json([
+                'message' => 'Reservation cancelled successfully'
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
 }

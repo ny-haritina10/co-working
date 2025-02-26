@@ -185,4 +185,17 @@ class ReservationService
             ];
         }
     }
+
+    public function cancelReservation(string $reference): void
+    {
+        DB::transaction(function () use ($reference) {
+            $reservation = Reservation::where('reference', $reference)
+                ->with(['options', 'paiements'])
+                ->firstOrFail();
+
+            $reservation->options()->detach();
+            $reservation->paiements()->delete();
+            $reservation->delete();
+        });
+    }
 }
