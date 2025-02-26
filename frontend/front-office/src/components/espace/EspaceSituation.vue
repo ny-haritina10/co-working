@@ -1,105 +1,117 @@
 <template>
   <div class="availability-container">
-    <div class="container py-4">
-      <!-- Header Section -->
-      <div class="availability-header">
-        <h2><i class="bi bi-grid-3x3-gap me-2"></i>Workspace Availability</h2>
-        <p class="text-muted">Find and book available workspaces for your needs</p>
-      </div>
-      
-      <!-- Date Selection -->
-      <div class="date-selection-card mb-4">
-        <div class="row align-items-center">
-          <div class="col-md-6">
-            <label for="date-picker" class="form-label">Select Date</label>
-            <div class="input-group date-picker-group">
-              <span class="input-group-text bg-light border-end-0">
-                <i class="bi bi-calendar3"></i>
-              </span>
-              <input 
-                type="date" 
-                id="date-picker" 
-                class="form-control border-start-0" 
-                v-model="selectedDate"
-              >
-              <button @click="fetchAvailability" class="btn search-btn ms-2">
-                <i class="bi bi-search me-2"></i>Search
-              </button>
-            </div>
-          </div>
-          <div class="col-md-6 mt-3 mt-md-0">
-            <div class="legend-container">
-              <div class="legend-item">
-                <div class="legend-color available"></div>
-                <span>Available</span>
-              </div>
-              <div class="legend-item">
-                <div class="legend-color occupied"></div>
-                <span>Occupied</span>
-              </div>
-              <div class="legend-item">
-                <div class="legend-color reserved"></div>
-                <span>Reserved, unpaid</span>
-              </div>
-            </div>
-          </div>
+    <Navbar :client="client" @logout="logout" />
+
+    <div class="container-fluid py-4">
+      <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-3 mb-4">
+          <Sidebar :client="client" currentPage="dashboard" />
         </div>
-      </div>
-      
-      <!-- Loading State -->
-      <div v-if="loading" class="text-center my-5">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Loading...</span>
-        </div>
-        <p class="mt-2">Loading workspace availability...</p>
-      </div>
-      
-      <!-- Error State -->
-      <div v-if="error" class="alert alert-danger" role="alert">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-        {{ error }}
-      </div>
-      
-      <!-- Availability Table -->
-      <div v-if="!loading && !error && spaces.length > 0" class="availability-table-container">
-        <div class="table-responsive">
-          <table class="availability-table">
-            <thead>
-              <tr>
-                <th class="workspace-header">Workspace</th>
-                <th v-for="hour in hours" :key="hour">{{ hour }}h</th>
-                <th class="actions-header">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="space in spaces" :key="space.id">
-                <td class="workspace-name">
-                  <div class="ws-badge">{{ space.label.charAt(0).toUpperCase() }}</div>
-                  <span>{{ capitalizeFirstLetter(space.label) }}</span>
-                </td>
-                <td 
-                  v-for="hour in hours" 
-                  :key="`${space.id}-${hour}`"
-                  :class="getCellClass(getSlotStatus(space, hour))"
-                >
-                  <div class="slot-tooltip">{{ getSlotStatus(space, hour) }}</div>
-                </td>
-                <td class="action-cell">
-                  <button class="btn reserve-btn" @click="handleReserve(space)">
-                    Reservation
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+          <!-- Header Section -->
+          <div class="availability-header">
+            <h2><i class="bi bi-grid-3x3-gap me-2"></i>Workspace Availability</h2>
+            <p class="text-muted">Find and book available workspaces for your needs</p>
+          </div>
+
+          <!-- Date Selection -->
+          <div class="date-selection-card mb-4">
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <label for="date-picker" class="form-label">Select Date</label>
+                <div class="input-group date-picker-group">
+                  <span class="input-group-text bg-light border-end-0">
+                    <i class="bi bi-calendar3"></i>
+                  </span>
+                  <input 
+                    type="date" 
+                    id="date-picker" 
+                    class="form-control border-start-0" 
+                    v-model="selectedDate"
+                  >
+                  <button @click="fetchAvailability" class="btn search-btn ms-2">
+                    <i class="bi bi-search me-2"></i>Search
                   </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                </div>
+              </div>
+              <div class="col-md-6 mt-3 mt-md-0">
+                <div class="legend-container">
+                  <div class="legend-item">
+                    <div class="legend-color available"></div>
+                    <span>Available</span>
+                  </div>
+                  <div class="legend-item">
+                    <div class="legend-color occupied"></div>
+                    <span>Occupied</span>
+                  </div>
+                  <div class="legend-item">
+                    <div class="legend-color reserved"></div>
+                    <span>Reserved, unpaid</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Loading State -->
+          <div v-if="loading" class="text-center my-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Loading workspace availability...</p>
+          </div>
+
+          <!-- Error State -->
+          <div v-if="error" class="alert alert-danger" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            {{ error }}
+          </div>
+
+          <!-- Availability Table -->
+          <div v-if="!loading && !error && spaces.length > 0" class="availability-table-container">
+            <div class="table-responsive">
+              <table class="availability-table">
+                <thead>
+                  <tr>
+                    <th class="workspace-header">Workspace</th>
+                    <th v-for="hour in hours" :key="hour">{{ hour }}h</th>
+                    <th class="actions-header">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="space in spaces" :key="space.id">
+                    <td class="workspace-name">
+                      <div class="ws-badge">{{ space.label.charAt(0).toUpperCase() }}</div>
+                      <span>{{ capitalizeFirstLetter(space.label) }}</span>
+                    </td>
+                    <td 
+                      v-for="hour in hours" 
+                      :key="`${space.id}-${hour}`"
+                      :class="getCellClass(getSlotStatus(space, hour))"
+                    >
+                      <div class="slot-tooltip">{{ getSlotStatus(space, hour) }}</div>
+                    </td>
+                    <td class="action-cell">
+                      <button class="btn reserve-btn" @click="handleReserve(space)">
+                        Reservation
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- No Data State -->
+          <div v-if="!loading && !error && spaces.length === 0" class="no-data-container">
+            <i class="bi bi-calendar-x display-4 text-muted"></i>
+            <h4>No workspaces available</h4>
+            <p>Try selecting a different date or contact support for assistance.</p>
+          </div>
         </div>
-      </div>
-      
-      <!-- No Data State -->
-      <div v-if="!loading && !error && spaces.length === 0" class="no-data-container">
-        <i class="bi bi-calendar-x display-4 text-muted"></i>
-        <h4>No workspaces available</h4>
-        <p>Try selecting a different date or contact support for assistance.</p>
       </div>
     </div>
 
@@ -255,9 +267,15 @@
 <script>
 import axios from 'axios';
 import { Modal } from 'bootstrap';
+import Sidebar from '../panel/Sidebar.vue';
+import Navbar from '../panel/Navbar.vue';
 
 export default {
   name: 'EspaceSituation',
+  components: {
+    Sidebar,
+    Navbar
+  },
   data() {
     return {
       selectedDate: this.formatDate(new Date()),
@@ -710,7 +728,7 @@ td:hover .slot-tooltip {
 
 .availability-container {
   background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
-  min-height: calc(100vh - 72px); /* Adjust based on your navbar height */
+  min-height: calc(100vh - 72px); 
   font-family: 'Poppins', sans-serif;
 }
 

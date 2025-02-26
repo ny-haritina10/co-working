@@ -1,63 +1,14 @@
 <template>
   <div class="home-container">
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg">
-      <div class="container">
-        <a class="navbar-brand d-flex align-items-center" href="#">
-          <i class="bi bi-buildings me-2"></i>
-          <span>CoSpace</span>
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto align-items-center">
-            <li class="nav-item me-3">
-              <span class="welcome-text">
-                <i class="bi bi-person-circle me-1"></i>
-                Welcome, {{ client?.name_client }}
-              </span>
-            </li>
-            <li class="nav-item">
-              <button class="btn logout-btn" @click="logout">
-                <i class="bi bi-box-arrow-right me-1"></i>
-                Sign Out
-              </button>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
+    <Navbar :client="client" @logout="logout" />
     
     <!-- Main Content -->
     <div class="container main-content">
       <div class="row">
         <!-- Sidebar -->
         <div class="col-lg-3 mb-4">
-          <div class="sidebar-card">
-            <div class="text-center mb-4">
-              <div class="avatar-container">
-                <i class="bi bi-person-circle"></i>
-              </div>
-              <h4 class="mt-3 user-name">{{ client?.name_client }}</h4>
-              <p class="user-role">Member</p>
-            </div>
-            
-            <div class="sidebar-menu">
-              <a href="#" class="sidebar-menu-item active">
-                <i class="bi bi-speedometer2 me-2"></i>
-                Dashboard
-              </a>
-              <a href="#" class="sidebar-menu-item">
-                <i class="bi bi-calendar-week me-2"></i>
-                Bookings
-              </a>
-              <router-link to="/espace" class="sidebar-menu-item">
-                <i class="bi bi-building me-2"></i>
-                Spaces
-              </router-link>
-            </div>
-          </div>
+          <Sidebar :client="client" currentPage="dashboard" />
         </div>
                 
         <!-- Main Dashboard -->
@@ -152,8 +103,15 @@
 </template>
 
 <script>
+import Sidebar from '../panel/Sidebar.vue';
+import Navbar from '../panel/Navbar.vue';
+
 export default {
   name: 'Home',
+  components: {
+    Sidebar,
+    Navbar
+  },
   data() {
     return {
       client: null,
@@ -190,107 +148,9 @@ export default {
   font-family: 'Poppins', sans-serif;
 }
 
-/* Navbar Styling */
-.navbar {
-  background: white;
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
-  padding: 1rem 0;
-}
-
-.navbar-brand {
-  font-weight: 600;
-  font-size: 1.5rem;
-  color: #2b3a4a;
-}
-
-.navbar-brand i {
-  color: #4e73df;
-  font-size: 1.3rem;
-}
-
-.welcome-text {
-  color: #495057;
-  font-weight: 500;
-}
-
-.logout-btn {
-  background: #f8f9fa;
-  color: #4e73df;
-  border: none;
-  border-radius: 8px;
-  padding: 0.5rem 1rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.logout-btn:hover {
-  background: #e9ecef;
-  color: #224abe;
-}
-
 /* Main Content Area */
 .main-content {
   padding: 2rem 0;
-}
-
-/* Sidebar Styling */
-.sidebar-card {
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-  padding: 2rem 1.5rem;
-}
-
-.avatar-container {
-  width: 80px;
-  height: 80px;
-  margin: 0 auto;
-  background: #f1f5ff;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.avatar-container i {
-  font-size: 2.5rem;
-  color: #4e73df;
-}
-
-.user-name {
-  font-weight: 600;
-  margin-bottom: 0.2rem;
-  color: #2b3a4a;
-}
-
-.user-role {
-  color: #6c757d;
-  margin-bottom: 1.5rem;
-}
-
-.sidebar-menu {
-  display: flex;
-  flex-direction: column;
-}
-
-.sidebar-menu-item {
-  padding: 0.8rem 1rem;
-  color: #495057;
-  text-decoration: none;
-  border-radius: 8px;
-  margin-bottom: 0.5rem;
-  transition: all 0.2s ease;
-  font-weight: 500;
-}
-
-.sidebar-menu-item:hover, .sidebar-menu-item.active {
-  background: #f1f5ff;
-  color: #4e73df;
-}
-
-.sidebar-menu-item.active {
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(78, 115, 223, 0.15);
 }
 
 /* Dashboard Header */
