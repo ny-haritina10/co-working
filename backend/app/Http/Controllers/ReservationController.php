@@ -82,4 +82,25 @@ class ReservationController extends Controller
             ], 400);
         }
     }
+
+    public function getClientReservations(Request $request, $clientId): JsonResponse
+    {
+        $request->merge(['id_client' => $clientId]);
+        $request->validate([
+            'id_client' => 'required|exists:client,id'
+        ]);
+
+        try {
+            $reservations = $this->reservationService->getClientReservations($clientId);
+
+            return response()->json([
+                'message' => 'Reservations retrieved successfully',
+                'data' => $reservations
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error retrieving reservations: ' . $e->getMessage()
+            ], 400);
+        }
+    }
 }

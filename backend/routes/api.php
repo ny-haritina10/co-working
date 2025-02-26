@@ -59,4 +59,5 @@ Route::middleware('auth:sanctum')->prefix('front-office')->group(function () {
     Route::get('/reservations', [ClientReservationController::class, 'index']);
     Route::post('/reservations/{reservation_id}/pay', [PaiementController::class, 'processPayment']);
     Route::post('/reservations/cancel', [ReservationController::class, 'cancel']);
+    Route::get('/clients/{clientId}/reservations', [ReservationController::class, 'getClientReservations']);
 });

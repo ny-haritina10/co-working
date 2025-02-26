@@ -10,6 +10,7 @@ use App\Models\ReservationOption;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use Illuminate\Support\Collection;
 
 class ReservationService
 {
@@ -197,5 +198,54 @@ class ReservationService
             $reservation->paiements()->delete();
             $reservation->delete();
         });
+    }
+
+    public function getClientReservations(int $clientId): Collection
+    {
+        $reservations = Reservation::where('id_client', $clientId)
+            ->with(['client', 'options'])
+            ->get();
+
+        if ($reservations->isEmpty()) {
+            return collect([]);
+        }
+
+        return $reservations->map(function ($reservation) {
+            $startTime = $reservation->datetime_reservation;
+            $endTime = $startTime->copy()->addHours($reservation->hour_duration);
+
+            return [
+                'reservation_date' => $startTime->toDateString(),
+                'hour_begin' => $startTime->format('H:i'),
+                'hour_end' => $endTime->format('H:i'),
+                'name_client' => $reservation->client->name_client ?? 'Unknown',
+                'options' => $reservation->options->pluck('label')->toArray(),
+                'duration' => $reservation->hour_duration,
+                'reservation_amount' => $this->calculateReservationAmount($reservation),
+                'status' => $this->determineReservationStatus($reservation)
+            ];
+        });
+    }
+
+    private function calculateReservationAmount(Reservation $reservation): float
+    {
+        $baseAmount = $reservation->espace->price_per_hour * $reservation->hour_duration;
+        $optionsAmount = $reservation->options->sum('price');
+        
+        return round($baseAmount + $optionsAmount, 2);
+    }
+
+    private function determineReservationStatus(Reservation $reservation): string
+    {
+        $now = now();
+        
+        if ($reservation->datetime_reservation->isFuture()) {
+            return 'upcoming';
+        } elseif ($reservation->datetime_reservation->lte($now) && 
+                 $reservation->datetime_reservation->addHours($reservation->hour_duration)->gte($now)) {
+            return 'active';
+        }
+        
+        return 'completed';
     }
 }
