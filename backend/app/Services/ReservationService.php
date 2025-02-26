@@ -203,7 +203,7 @@ class ReservationService
     public function getClientReservations(int $clientId): Collection
     {
         $reservations = Reservation::where('id_client', $clientId)
-            ->with(['client', 'options', 'paiements']) 
+            ->with(['client', 'options', 'paiements'])  // eager loading to fetch all necessary data
             ->get();
 
         if ($reservations->isEmpty()) {
