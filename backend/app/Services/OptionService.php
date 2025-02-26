@@ -6,6 +6,11 @@ use App\Models\Option;
 
 class OptionService
 {
+    public function getAllOptions()
+    {
+        return Option::all();
+    }
+    
     public function importCsv($file)
     {
         try {

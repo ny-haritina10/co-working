@@ -18,6 +18,27 @@ class OptionController extends Controller
         $this->csvService = $csvService;
     }
 
+    // New endpoint to get all options
+    public function index()
+    {
+        try {
+            $options = $this->optionService->getAllOptions();
+            return response()->json([
+                'success' => true,
+                'data' => $options,
+                'message' => 'Options retrieved successfully',
+                'status' => 200
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve options',
+                'error' => $e->getMessage(),
+                'status' => 500
+            ], 500);
+        }
+    }
+
     public function importCsv(Request $request)
     {
         $validationResult = $this->csvService->validateCsv($request);

@@ -46,6 +46,7 @@ Route::middleware(['auth:sanctum'])->prefix('back-office')->group(function () {
     Route::get('/statistics/top-time-slots', [StatistiqueController::class, 'getTopTimeSlots']);
 
     Route::post('/admin/logout', [AdminAuthController::class, 'logout']);
+    Route::get('/options', [OptionController::class, 'index']);
 });
 
 // guarded front-office routes

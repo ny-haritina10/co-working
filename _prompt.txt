@@ -1,110 +1,279 @@
-I want you to implement this functionality on the front-office app : 
-A page who list of `Espaces de travail`. i'm providing you a little maquette (image) of what i want to have. And i've already implemented the backend part, all you need to do is to create and style the component by taking some inspirations with the given image. 
+I want you to add this functionality to this VueJS component.
 
-Here is the API endpoint : 
-http://localhost:8000/api/front-office/espaces/availability?date=2025-01-14
+When i click to the button `Reserve`, display a modal form to make a reservation. Each rows of the table belongs to a `Espaces, and each Row have a `Reserve` button, each buttons needs to be associated with a `Espaces`.
 
-And here is the returned JSON: 
+Here is the API endpoint: 
+POST http://localhost:8000/api/front-office/reservations
+
+Here is an example the JSON required : 
 ```
 {
-    "date": "2025-01-14",
-    "espaces": [
-        {
-            "id": 1,
-            "label": "rubis",
-            "slots": [
-                {
-                    "hour": 8,
-                    "status": "libre"
-                },
-                {
-                    "hour": 9,
-                    "status": "libre"
-                },
-                {
-                    "hour": 10,
-                    "status": "libre"
-                },
-                {
-                    "hour": 11,
-                    "status": "Reservé, non payé"
-                },
-                {
-                    "hour": 12,
-                    "status": "Reservé, non payé"
-                },
-                {
-                    "hour": 13,
-                    "status": "Reservé, non payé"
-                },
-                {
-                    "hour": 14,
-                    "status": "Reservé, non payé"
-                },
-                {
-                    "hour": 15,
-                    "status": "libre"
-                },
-                {
-                    "hour": 16,
-                    "status": "libre"
-                },
-                {
-                    "hour": 17,
-                    "status": "libre"
-                }
-            ]
+    "id_espace": 3,
+    "id_client": 2,
+    "date_reservation": "2025-03-26",
+    "hour_begin": 12,
+    "duration": 4,
+    "options": [1, 2, 3] 
+}
+
+```
+And here is the returned JSON : 
+```
+{
+    "message": "Reservation created successfully",
+    "data": {
+        "id_client": 2,
+        "id_espace": 3,
+        "reference": "RES-20250226-AH9WE",
+        "datetime_reservation": "2025-03-26T12:00:00.000000Z",
+        "hour_duration": 4,
+        "updated_at": "2025-02-26T07:38:54.000000Z",
+        "created_at": "2025-02-26T07:38:54.000000Z",
+        "id": 15,
+        "espace": {
+            "id": 3,
+            "label": "or",
+            "hour_price": "46500.00",
+            "created_at": "2025-02-25T07:03:28.000000Z",
+            "updated_at": "2025-02-25T07:03:28.000000Z"
         },
-        {
-            "id": 2,
-            "label": "diamant",
-            "slots": [
-                {
-                    "hour": 8,
-                    "status": "libre"
-                },
-                {
-                    "hour": 9,
-                    "status": "libre"
-                },
-                {
-                    "hour": 10,
-                    "status": "libre"
-                },
-                {
-                    "hour": 11,
-                    "status": "libre"
-                },
-                {
-                    "hour": 12,
-                    "status": "libre"
-                },
-                {
-                    "hour": 13,
-                    "status": "libre"
-                },
-                {
-                    "hour": 14,
-                    "status": "libre"
-                },
-                {
-                    "hour": 15,
-                    "status": "libre"
-                },
-                {
-                    "hour": 16,
-                    "status": "libre"
-                },
-                {
-                    "hour": 17,
-                    "status": "libre"
+        "options": [
+            {
+                "id": 1,
+                "code": "OPT1",
+                "label": "Imprimante",
+                "price": "50000.00",
+                "created_at": "2025-02-25T07:03:38.000000Z",
+                "updated_at": "2025-02-25T07:03:38.000000Z",
+                "pivot": {
+                    "id_reservation": 15,
+                    "id_option": 1
                 }
-            ]
-        },
-      ...
-    ]
+            },
+            ... the others options
+        ]
+    }
 }
 ```
 
-You have a free-choice for the component of the UI. i just want a good UI&UX for the component.
-To sum up, i need a component with an input date (filled by default with date_now()), and a `tableau` to display the situation of each `Espaces` for the given date (refere to the image )
+Here is the details about the modal form who will appear when i click into the button :
+- the espace is retrieved from the button cliked in the rows
+- a dropdown with the available hour (from 7 - 17)
+- a dropdown for duration from 1 - 4 hour
+- a checkboxes list of the options    
+
+Here is the API endpoint to get all `Options`
+GET  http://127.0.0.1:8000/api/back-office/options
+
+And here is the returned data : 
+```
+{
+    "success": true,
+    "data": [
+        {
+            "id": 1,
+            "code": "OPT1",
+            "label": "Imprimante",
+            "price": "50000.00",
+            "created_at": "2025-02-25T07:03:38.000000Z",
+            "updated_at": "2025-02-25T07:03:38.000000Z"
+        },
+        ... the others options
+    ],
+    "message": "Options retrieved successfully",
+    "status": 200
+}
+```
+
+Here is the code of the VueJS component:
+
+```
+<template>
+  <div class="availability-container">
+    <div class="container py-4">
+      <!-- Header Section -->
+      <div class="availability-header">
+        <h2><i class="bi bi-grid-3x3-gap me-2"></i>Workspace Availability</h2>
+        <p class="text-muted">Find and book available workspaces for your needs</p>
+      </div>
+      
+      <!-- Date Selection -->
+      <div class="date-selection-card mb-4">
+        <div class="row align-items-center">
+          <div class="col-md-6">
+            <label for="date-picker" class="form-label">Select Date</label>
+            <div class="input-group date-picker-group">
+              <span class="input-group-text bg-light border-end-0">
+                <i class="bi bi-calendar3"></i>
+              </span>
+              <input 
+                type="date" 
+                id="date-picker" 
+                class="form-control border-start-0" 
+                v-model="selectedDate"
+              >
+              <button @click="fetchAvailability" class="btn search-btn ms-2">
+                <i class="bi bi-search me-2"></i>Search
+              </button>
+            </div>
+          </div>
+          <div class="col-md-6 mt-3 mt-md-0">
+            <div class="legend-container">
+              <div class="legend-item">
+                <div class="legend-color available"></div>
+                <span>Available</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color occupied"></div>
+                <span>Occupied</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color reserved"></div>
+                <span>Reserved, unpaid</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Loading State -->
+      <div v-if="loading" class="text-center my-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">Loading workspace availability...</p>
+      </div>
+      
+      <!-- Error State -->
+      <div v-if="error" class="alert alert-danger" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        {{ error }}
+      </div>
+      
+      <!-- Availability Table -->
+      <div v-if="!loading && !error && spaces.length > 0" class="availability-table-container">
+        <div class="table-responsive">
+          <table class="availability-table">
+            <thead>
+              <tr>
+                <th class="workspace-header">Workspace</th>
+                <th v-for="hour in hours" :key="hour">{{ hour }}h</th>
+                <th class="actions-header">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="space in spaces" :key="space.id">
+                <td class="workspace-name">
+                  <div class="ws-badge">{{ space.label.charAt(0).toUpperCase() }}</div>
+                  <span>{{ capitalizeFirstLetter(space.label) }}</span>
+                </td>
+                <td 
+                  v-for="hour in hours" 
+                  :key="`${space.id}-${hour}`"
+                  :class="getCellClass(getSlotStatus(space, hour))"
+                >
+                  <div class="slot-tooltip">{{ getSlotStatus(space, hour) }}</div>
+                </td>
+                <td class="action-cell">
+                  <button class="btn reserve-btn" @click="handleReserve(space)">
+                    Reserve
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <!-- No Data State -->
+      <div v-if="!loading && !error && spaces.length === 0" class="no-data-container">
+        <i class="bi bi-calendar-x display-4 text-muted"></i>
+        <h4>No workspaces available</h4>
+        <p>Try selecting a different date or contact support for assistance.</p>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import axios from 'axios';
+
+export default {
+  name: 'WorkspaceAvailability',
+  data() {
+    return {
+      selectedDate: this.formatDate(new Date()),
+      spaces: [],
+      hours: [8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
+      loading: false,
+      error: null,
+      apiClient: null
+    }
+  },
+  created() {
+    this.apiClient = axios.create({
+      baseURL: 'http://localhost:8000/api',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    });
+    
+    // Set auth token if exists
+    const token = localStorage.getItem('token');
+    if (token) {
+      this.apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    }
+    
+    this.fetchAvailability();
+  },
+  methods: {
+    formatDate(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    },
+    
+    async fetchAvailability() {
+      this.loading = true;
+      this.error = null;
+      
+      try {
+        const response = await this.apiClient.get(`/front-office/espaces/availability?date=${this.selectedDate}`);
+        this.spaces = response.data.espaces;
+      } catch (error) {
+        this.error = 'Failed to load workspace availability. Please try again later.';
+        console.error('Error fetching workspace availability:', error);
+      } finally {
+        this.loading = false;
+      }
+    },
+    
+    getSlotStatus(space, hour) {
+      const slot = space.slots.find(s => s.hour === hour);
+      return slot ? slot.status : 'unavailable';
+    },
+    
+    getCellClass(status) {
+      if (status === 'libre') return 'available-cell';
+      if (status === 'occupé') return 'occupied-cell';
+      if (status === 'Reservé, non payé') return 'reserved-cell';
+      return '';
+    },
+    
+    capitalizeFirstLetter(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    },
+    
+    handleReserve(space) {
+      alert(`Reservation for workspace ${space.label} will be implemented in the next phase.`);
+    }
+  }
+}
+</script>
+
+<style scoped>
+... existing style
+</style>
+```
